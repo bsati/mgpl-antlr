@@ -26,6 +26,7 @@ tokens {
 	AND;
 	OR;
 	LOOP_BODY;
+	STATEMENTS;
 }
 start: prog;
 
@@ -42,7 +43,7 @@ var_decl_ext
 	:	init? | '[' NUMBER ']';
 init 	:	 '=' expr -> ^(VALUE expr);
 obj_decl 
-	:	 OBJ_TYPE IDENTIFIER obj_decl_ext;
+	:	 OBJ_TYPE IDENTIFIER obj_decl_ext -> ^(OBJECT IDENTIFIER ^(TYPE OBJ_TYPE) obj_decl_ext);
 obj_decl_ext
 	:	 '('! attr_ass_list? ')'! | '[' NUMBER ']' -> ^(SIZE NUMBER);
 attr_ass_list 
@@ -57,7 +58,7 @@ event_block
 	
 // Statement rules
 stmt_block
-	:	 '{'! stmt* '}'!;
+	:	 '{' stmt* '}' -> ^(STATEMENTS stmt*);
 stmt	:	if_stmt | for_stmt | ass_stmt ';'!;
 if_stmt	:	'if' '(' expr ')' stmt_block ('else' stmt_block)? -> ^(IF ^(CONDITION expr) ^(CONSEQUENCE stmt_block) ^(ALTERNATIVE stmt_block)?);
 for_stmt	:	'for' '(' ass_stmt ';' expr ';' ass_stmt ')' stmt_block -> ^(FOR ^(INIT ass_stmt) ^(LOOP_CONDITION expr) ^(LOOP_COUNTER ass_stmt) ^(LOOP_BODY stmt_block));
